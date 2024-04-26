@@ -7,19 +7,22 @@ This application was generated using http://start.vertx.io
 == Building
 
 To launch your tests:
-```
+[source,sh]
+----
 ./mvnw clean test
-```
+----
 
 To package your application:
-```
+[source,sh]
+----
 ./mvnw clean package
-```
+----
 
 To run your application:
-```
+[source,sh]
+----
 ./mvnw clean compile exec:java
-```
+----
 
 == Help
 

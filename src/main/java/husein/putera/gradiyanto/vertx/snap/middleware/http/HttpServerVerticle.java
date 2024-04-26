@@ -15,7 +15,7 @@ public class HttpServerVerticle extends AbstractVerticle {
 
   @SuppressWarnings("java:S106")
   @Override
-  public void start(Promise<Void> startPromise) throws Exception {
+  public void start(Promise<Void> startPromise) {
     vertx.createHttpServer()
       .requestHandler(
         new RouterBuilder(Router.router(vertx))
