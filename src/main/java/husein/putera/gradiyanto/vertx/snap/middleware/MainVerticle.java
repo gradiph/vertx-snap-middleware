@@ -1,5 +1,6 @@
 package husein.putera.gradiyanto.vertx.snap.middleware;
 
+import husein.putera.gradiyanto.vertx.snap.middleware.backend.BackendConfig;
 import husein.putera.gradiyanto.vertx.snap.middleware.backend.BackendVerticle;
 import husein.putera.gradiyanto.vertx.snap.middleware.http.HttpConfig;
 import husein.putera.gradiyanto.vertx.snap.middleware.http.HttpServerVerticle;
@@ -8,6 +9,8 @@ import io.vertx.config.ConfigRetrieverOptions;
 import io.vertx.config.ConfigStoreOptions;
 import io.vertx.core.AbstractVerticle;
 import io.vertx.core.Promise;
+import io.vertx.core.impl.logging.Logger;
+import io.vertx.core.impl.logging.LoggerFactory;
 import io.vertx.core.json.JsonObject;
 
 import java.util.HashMap;
@@ -16,10 +19,12 @@ import java.util.Map;
 @SuppressWarnings("java:S106")
 public class MainVerticle extends AbstractVerticle {
 
+  private final Logger logger;
   private final Map<String, String> deployments;
 
   public MainVerticle() {
     super();
+    logger = LoggerFactory.getLogger(this.getClass());
     deployments = new HashMap<>();
   }
 
@@ -28,14 +33,13 @@ public class MainVerticle extends AbstractVerticle {
     ConfigRetriever retriever = getConfigRetriever();
     retriever.getConfig()
       .onSuccess(config -> {
-        vertx.deployVerticle(
-            new HttpServerVerticle(
-              config.getJsonObject(HttpConfig.NAMESPACE)
-                .mapTo(HttpConfig.class)))
+        logger.info("Set config: " + config.toString());
+
+        vertx.deployVerticle(new HttpServerVerticle(HttpConfig.from(config)))
           .onSuccess(deploymentId -> setDeployed(deploymentId, HttpServerVerticle.class.getName()))
           .onFailure(startPromise::fail);
 
-        vertx.deployVerticle(new BackendVerticle())
+        vertx.deployVerticle(new BackendVerticle(BackendConfig.from(config)))
           .onSuccess(deploymentId -> setDeployed(deploymentId, BackendVerticle.class.getName()))
           .onFailure(startPromise::fail);
       })
